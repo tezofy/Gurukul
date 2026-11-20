@@ -2,8 +2,42 @@
    ৯. পঞ্জিকা — ১৬ বিভাগ, ক্যালেন্ডার, রাশিফল, বিবাহ-লগ্ন
    ফাইল: js/views/panjika.js
    ========================================================================== */
+  /* দেশ-সিলেক্টর — বাংলাদেশ / ভারত (দুই দেশের ঘড়ি ও তিথি) */
+  function regionPicker(compact) {
+      const cur = regionKey();
+      return `<div class="region-bar" role="group" aria-label="পঞ্জিকার দেশ নির্বাচন">
+        <span class="region-lab">${compact ? '' : 'পঞ্জিকার দেশ'}</span>
+        <div class="segment region-seg">
+          ${['BD', 'IN'].map(k => `<button class="${cur === k ? 'on' : ''}" data-act="regionSet" data-v="${k}" aria-pressed="${cur === k}">
+            ${PLACES[k].name}<span class="region-clock">${PLACES[k].clock}</span></button>`).join('')}
+        </div>
+      </div>`;
+    }
+  function regionNote() {
+      const pl = placeOf();
+      return `<p class="mini muted region-note">এখন <b>${pl.name}</b>-এর পঞ্জিকা দেখছেন — সময় ${pl.city} শহরের ঘড়ি ${pl.clock} অনুযায়ী। উৎসবের দিন দুই দেশের তিথি মিলিয়ে দেখানো হচ্ছে। দেশ বদলে অন্য দেশের দিনক্ষণ ও সময় দেখুন।</p>`;
+    }
+  /* দুই দেশের তুলনা কার্ড — একই দিনে তিথি/উৎসব আলাদা হলে স্পষ্ট দেখায় */
+  function regionCompareCard(k) {
+      const c = regionCompare(k || U.panjika.day || TODAY_KEY);
+      const rows = [c.rb, c.ri].map(r => `<div class="rcmp-row ${r.rk === regionKey() ? 'on' : ''}">
+        <span class="rcmp-p">${r.place.name}<i>${r.place.city} ${r.place.clock}</i></span>
+        <span class="rcmp-t">${r.tithi}</span>
+        <span class="rcmp-s">সূর্যোদয় ${r.sunrise}</span></div>`).join('');
+      const fBD = (festivalOn(c.dateKey, 'BD') || '').trim(), fIN = (festivalOn(c.dateKey, 'IN') || '').trim();
+      const diffFest = fBD !== fIN;
+      return `<div class="card pad rcmp">
+        <div class="kv"><div><div class="mini muted">একই দিনে দুই দেশ</div>
+          <div class="ttl" style="margin-top:3px;font-size:.95rem">${c.tithiSame ? 'তিথি মিলে গেছে' : 'তিথি আলাদা'}</div></div>
+          <span class="pill ${c.tithiSame ? 'ok' : ''}">${c.tithiSame ? 'একই' : 'পার্থক্য'}</span></div>
+        ${rows}
+        ${diffFest ? `<div class="mini rcmp-note" style="margin-top:9px;line-height:1.7"><b>উৎসবের পার্থক্য:</b> বাংলাদেশে ${esc(fBD || 'কিছু নেই')} · ভারতে ${esc(fIN || 'কিছু নেই')}</div>` : ''}
+        <button class="btn ghost sm block" style="margin-top:10px" data-act="regionOther">অন্য দেশের পঞ্জিকা দেখুন ›</button>
+      </div>`;
+    }
   function panjikaScreen() {
       const bt = bengaliDate(TODAY);
+      const FL = festivalsFor(regionKey());
       if (U.panjika.by == null) { U.panjika.by = bt.year; U.panjika.bm = bt.m; }
       const isBn = U.panjika.view === 'bn';
       const selKey = U.panjika.day;
@@ -52,14 +86,30 @@
         note = `বঙ্গাব্দ ${bn(bt.year)} · ${bn(daysInMonth)} দিন`;
       }
 
-      const festList = Object.keys(P.festivals).filter(k => k >= monthStart && k <= monthEnd).sort();
+      const festList = Object.keys(FL).filter(k => k >= monthStart && k <= monthEnd).sort();
+      const selectedDayCard = `<div class="card oath pad mt pj-top-card">
+          <div class="kv"><div><div class="mini muted">নির্বাচিত দিন · ${placeOf().name}</div>
+            <div class="display" style="font-size:15px;margin-top:3px">${bn(selBn.d)} ${selBn.month}, ${BN_DAY[selDate.getDay()]}</div>
+            <div class="mini muted" style="margin-top:3px">${bn(selDate.getDate())} ${BN_MONTH[selDate.getMonth()]} ${bn(selDate.getFullYear())} · ${bn(selBn.year)} বঙ্গাব্দ</div></div>
+            <span class="pill">${sel.tithi}</span></div>
+          ${sel.fest ? `<div class="mini pj-festival">✦ ${esc(sel.fest)}</div>` : ''}
+          <div class="grid2 mt">
+            <div class="stat"><div class="k">শুভ সময়</div><div class="v" style="color:var(--ok)">${sel.shubho}</div></div>
+            <div class="stat"><div class="k">রাহুকাল</div><div class="v" style="color:var(--danger)">${sel.rahu}</div></div>
+            <div class="stat"><div class="k">সূর্যোদয় (${placeOf().city})</div><div class="v">${sel.sunrise}</div></div>
+            <div class="stat"><div class="k">ঋতু</div><div class="v">${selBn.season}</div></div>
+          </div>
+          <button class="btn ghost block mt pj-card-action" data-act="pjsub" data-s="daily">দিনের মুহূর্ত ও পঞ্চাঙ্গ দেখুন</button>
+        </div>`;
 
       return `${appbar('পঞ্জিকা ও একাদশী', 'Panjika · বঙ্গাব্দ ' + bn(bt.year))}
-      <div class="pad" style="padding-top:0">
+      <div class="pj-page pj-home-page"><div class="pad" style="padding-top:0">
+        ${selectedDayCard}
         <div class="segment">
           <button class="${isBn ? 'on' : ''}" data-act="pview" data-v="bn">বাংলা (বঙ্গাব্দ)</button>
           <button class="${!isBn ? 'on' : ''}" data-act="pview" data-v="en">ইংরেজি</button>
         </div>
+        ${regionPicker()}
 
         <div class="card pad" style="margin-bottom:12px;border:1px solid rgba(215,169,79,.45);background:linear-gradient(160deg,rgba(215,169,79,.13),rgba(215,169,79,.03))">
           <div class="kv"><div style="min-width:0"><div class="mini muted">নতুন যোগ হয়েছে — জ্যোতিষ</div>
@@ -72,20 +122,8 @@
           </div>
         </div>
 
-        <div class="card oath pad mt">
-          <div class="kv"><div><div class="mini muted">নির্বাচিত দিন</div>
-            <div class="display" style="font-size:15px;margin-top:3px">${bn(selBn.d)} ${selBn.month}, ${BN_DAY[selDate.getDay()]}</div>
-            <div class="mini muted" style="margin-top:3px">${bn(selDate.getDate())} ${BN_MONTH[selDate.getMonth()]} ${bn(selDate.getFullYear())} · ${bn(selBn.year)} বঙ্গাব্দ</div></div>
-            <span class="pill">${sel.tithi}</span></div>
-          ${sel.fest ? `<div class="mini" style="color:var(--gold-300);margin-top:8px">✦ ${esc(sel.fest)}</div>` : ''}
-          <div class="grid2 mt">
-            <div class="stat"><div class="k">শুভ সময়</div><div class="v" style="color:var(--ok)">${sel.shubho}</div></div>
-            <div class="stat"><div class="k">রাহুকাল</div><div class="v" style="color:var(--danger)">${sel.rahu}</div></div>
-            <div class="stat"><div class="k">সূর্যোদয়</div><div class="v">${sel.sunrise}</div></div>
-            <div class="stat"><div class="k">ঋতু</div><div class="v">${selBn.season}</div></div>
-          </div>
-          <button class="btn ghost block mt" data-act="pjsub" data-s="daily">দিনের মুহূর্ত ও পঞ্চাঙ্গ দেখুন</button>
-        </div>
+        ${regionCompareCard(selKey)}
+
 
         <div class="sect"><h4>${head}</h4><div class="line"></div>${nav}</div>
         <div class="card pad">
@@ -101,7 +139,7 @@
           const d = new Date(k + 'T00:00:00'), diff = Math.round((d - new Date(TODAY_KEY + 'T00:00:00')) / DAY_MS);
           const bD = bengaliDate(d);
           return `<div class="card rowcard stack"><div class="datebox"><b>${bn(bD.d)}</b><i>${bD.month.slice(0, 4)}</i></div>
-            <div style="flex:1"><div class="kv"><span class="ttl">${esc(P.festivals[k])}</span>
+            <div style="flex:1"><div class="kv"><span class="ttl">${esc(FL[k])}</span>
               <span class="pill">${diff === 0 ? 'আজ' : diff > 0 ? bn(diff) + ' দিন' : 'সম্পন্ন'}</span></div>
               <div class="mini muted" style="margin-top:5px">${bn(d.getDate())} ${BN_MONTH[d.getMonth()]} · ${panjikaFor(k).tithi} · শুভ ${panjikaFor(k).shubho}</div></div></div>`;
         }).join('') : '<p class="tiny muted">এই মাসে কোনো ব্রত নেই।</p>'}
@@ -128,8 +166,9 @@
           তারিখ মিলিয়ে নেওয়া হয়েছে <a href="https://banglapanjika.com/" target="_blank" rel="noopener noreferrer" style="color:var(--gold-300)">বাংলা পঞ্জিকা</a>-র তালিকা থেকে।</div>
         </div>
 
+        ${regionNote()}
         <p class="mini muted" style="margin-top:16px;line-height:1.7">বঙ্গাব্দ গণনা: বাংলাদেশ সংশোধিত পঞ্জিকা অনুযায়ী <b>বৈশাখ ১ = ১৪ এপ্রিল</b>. উপরের ছোট সংখ্যা ইংরেজি তারিখ। কিছু ক্ষেত্রে আঞ্চলিক পঞ্জিকায় ১ দিন পার্থক্য হতে পারে। তারিখ ও ব্রতের তালিকা মিলিয়ে নেওয়া হয়েছে <a href="https://banglapanjika.com/" target="_blank" rel="noopener noreferrer" style="color:var(--gold-300)">বাংলা পঞ্জিকা</a> থেকে; বিস্তারিত জানতে মূল সাইট দেখুন।</p>
-      </div><div style="height:20px"></div>`;
+      </div><div style="height:20px"></div></div>`;
     }
   const PJ_SUBS = [
       ['broto', 'ব্রতের তালিকা'], ['ekadashi', 'একাদশী'], ['purnima', 'পূর্ণিমা'], ['amavasya', 'অমাবস্যা'],
@@ -140,7 +179,7 @@
       `<button class="xlink ${on ? 'on' : ''}" data-act="pjsub" data-s="${slug}">${label}</button>`;
   const pjChips = active =>
       `<div class="xchips">${PJ_SUBS.filter(([sl]) => sl !== 'calendar').map(([s, l]) => pjChip(s, l, s === active)).join('')}</div>`;
-  const pjPairs = () => Object.keys(P.festivals).sort().map(k => [k, P.festivals[k]]);
+  const pjPairs = () => { const FL = festivalsAll(); return Object.keys(FL).sort().map(k => [k, FL[k]]); };
   const pjWhen = k => {
       const d = new Date(k + 'T00:00:00'), diff = Math.round((d - new Date(TODAY_KEY + 'T00:00:00')) / DAY_MS);
       return { d, diff };
@@ -155,10 +194,11 @@
     }
   const pjShell = (title, sub, body, active) =>
       `${appbar(title, sub, '#/panjika')}
-      <div class="pad" style="padding-top:0">
+      <div class="pj-page"><div class="pad" style="padding-top:0">
+        ${regionPicker(true)}
         ${pjChips(active)}
         <div style="height:12px"></div>${body}
-      </div><div style="height:20px"></div>`;
+      </div><div style="height:20px"></div></div>`;
   const pjEmpty = msg => `<p class="tiny muted" style="padding:14px 2px">${msg}</p>`;
   function pjList(title, sub, active, filter, desc) {
       const rows = pjPairs().filter(([k, n]) => filter(k, n));
@@ -181,8 +221,14 @@
             <div class="display" style="font-size:15px;margin-top:3px">${bn(bD.d)} ${bD.month} ${bn(bD.year)}</div>
             <div class="mini muted" style="margin-top:3px">${bD.season} ঋতু</div></div>
             <span class="pill">${pk.tithi}</span></div>
-          ${dateObservances(k).length ? `<div class="mini" style="color:var(--gold-300);margin-top:9px;line-height:1.7">${dateObservances(k).map(o => `✦ ${esc(o.label)}: ${esc(o.value)}`).join('<br/>')}</div>` : ''}
-          <div class="mini muted" style="margin-top:9px;line-height:1.5">তথ্য ঢাকাভিত্তিক আনুমানিক গণনা ও অ্যাপের সীমিত তালিকা থেকে। স্থানীয় পঞ্জিকা মিলিয়ে নিন।</div>
+          ${(() => {
+            const obs = dateObservances(k);
+            if (!obs.length) return '';
+            const byLab = {};
+            obs.forEach(o => { (byLab[o.label] = byLab[o.label] || []).push(o.value); });
+            return `<div class="mini" style="color:var(--gold-300);margin-top:9px;line-height:1.75">${Object.keys(byLab).map(l => `✦ <b>${esc(l)}:</b> ${byLab[l].map(v => esc(v)).join(' · ')}`).join('<br/>')}</div>`;
+          })()}
+          <div class="mini muted" style="margin-top:9px;line-height:1.5">তথ্য ${placeOf().city}-ভিত্তিক আনুমানিক গণনা ও অ্যাপের সীমিত তালিকা থেকে। স্থানীয় পঞ্জিকা মিলিয়ে নিন।</div>
           <div class="grid2 mt">
             <div class="stat"><div class="k">নক্ষত্র</div><div class="v">${pk.nak}</div></div>
             <div class="stat"><div class="k">তিথি</div><div class="v">${pk.tithi}</div></div>
@@ -194,7 +240,8 @@
           ${pk.ekadashi ? `<div class="mini" style="margin-top:10px;color:var(--gold-200)">একাদশী তিথি — উপবাসের দিন।</div>` : ''}
         </div>
 
-        <div class="sect"><h4>দিনের মুহূর্ত</h4><div class="line"></div><span class="mini muted">ঢাকা</span></div>
+        ${regionCompareCard(k)}
+        <div class="sect"><h4>দিনের মুহূর্ত</h4><div class="line"></div><span class="mini muted">${placeOf().city} · ${placeOf().name}</span></div>
         <div class="card pad">
           <div class="grid2">
             <div class="stat"><div class="k">অভিজিৎ (শুভ)</div><div class="v" style="color:var(--ok)">${pk.mh.abhijit[0]}–${pk.mh.abhijit[1]}</div></div>
@@ -207,12 +254,12 @@
           ${pk.ekadashi ? `<div class="card pad mt" style="background:rgba(215,169,79,.08);border:1px solid rgba(215,169,79,.25)">
             <div class="mini" style="color:var(--gold-200);font-weight:600">একাদশীর পারণ</div>
             <div class="mini" style="margin-top:5px;line-height:1.7">সূর্যোদয় ${pk.mh.parana[0]} থেকে ${pk.mh.parana[1]}-এর মধ্যে (দিনের প্রথম ১/৪ ভাগ)। গোস্বামী ও স্মার্ত মতে সময়ে সামান্য পার্থক্য হতে পারে — পারণের আগে স্থানীয় পঞ্জিকা মিলিয়ে নিন।</div></div>` : ''}
-          <div class="mini muted" style="margin-top:10px;line-height:1.7">সূর্যোদয়-সূর্যাস্ত আট ভাগে ভাগ করে বার অনুসারে রাহু, যমগণ্ড ও গুলিকের কাল গণনা করা হয়েছে (ঢাকার অক্ষাংশ-দ্রাঘিমা)।</div>
+          <div class="mini muted" style="margin-top:10px;line-height:1.7">সূর্যোদয়-সূর্যাস্ত আট ভাগে ভাগ করে বার অনুসারে রাহু, যমগণ্ড ও গুলিকের কাল গণনা করা হয়েছে (${placeOf().city}-এর অক্ষাংশ-দ্রাঘিমা, ${placeOf().clock})।</div>
         </div>
         <div class="sect"><h4>আগামী ৪ দিন</h4><div class="line"></div></div>
         ${[1, 2, 3, 4].map(i => {
           const kk = key(new Date(d.getTime() + i * DAY_MS));
-          return pjRow(kk, P.festivals[kk] || panjikaFor(kk).tithi, '');
+          return pjRow(kk, festivalsAll()[kk] || panjikaFor(kk).tithi, '');
         }).join('')}`;
       return pjShell('দৈনিক পঞ্জিকা', 'Daily panjika', body, 'daily');
     }
@@ -276,7 +323,7 @@
         if (!cells.length) return '';
         const a = cells[0].date, z = cells[cells.length - 1].date;
         const ks = key(a), kz = key(z);
-        const count = Object.keys(P.festivals).filter(k => k >= ks && k <= kz).length;
+        const count = Object.keys(festivalsAll()).filter(k => k >= ks && k <= kz).length;
         return `<button class="card pad" style="width:100%;text-align:left;border:1px solid rgba(215,169,79,.22);margin-bottom:8px;background:transparent"
           data-act="pjmonth" data-y="${y}" data-m="${m}">
           <div class="kv"><span class="ttl">${nm} ${bn(y)}</span><span class="pill">${bn(cells.length)} দিন · ${bn(count)} ব্রত</span></div>
@@ -294,7 +341,7 @@
       shubha: [3, 4, 9, 11, 12, 13, 16, 17, 18, 20, 21, 22, 23, 25, 26]
     };
   function karmaDates(item, fromKey, limit) {
-      const out = [], start = new Date(fromKey + 'T00:00:00');
+      const out = [], start = new Date(fromKey + 'T00:00:00'), FALL = festivalsAll();
       const keys = Array.isArray(item.nak) ? item.nak : [item.nak];
       const naks = [];
       keys.forEach(x => { if (typeof x === 'number') naks.push(x); else (NAK_CLASS[x] || []).forEach(y => { if (!naks.includes(y)) naks.push(y); }); });
@@ -308,7 +355,7 @@
         if (tno === 11 || tno === 15) continue;                 /* একাদশী ও পূর্ণিমা বর্জিত */
         if (!item.tithi.includes(tno)) continue;
         if (!naks.includes(nakIndex(k, rise))) continue;
-        if (/একাদশী|অমাবস্যা|পূর্ণিমা|সংক্রান্তি/.test(P.festivals[k] || '')) continue;
+        if (/একাদশী|অমাবস্যা|পূর্ণিমা|সংক্রান্তি/.test(FALL[k] || '')) continue;
         out.push(k);
       }
       return out;
@@ -342,11 +389,17 @@
       ['ঢাকা', 23.8103, 90.4125], ['চট্টগ্রাম', 22.3569, 91.7832], ['খুলনা', 22.8456, 89.5403],
       ['রাজশাহী', 24.3745, 88.6042], ['সিলেট', 24.8949, 91.8687], ['বরিশাল', 22.7010, 90.3535],
       ['রংপুর', 25.7439, 89.2752], ['ময়মনসিংহ', 24.7471, 90.4203], ['কুমিল্লা', 23.4607, 91.1809],
-      ['নারায়ণগঞ্জ', 23.6238, 90.5000]
+      ['নারায়ণগঞ্জ', 23.6238, 90.5000],
+      /* ---- ভারত ---- */
+      ['উজ্জয়িন', 23.1765, 75.7885], ['দিল্লি', 28.6139, 77.2090], ['বারাণসী', 25.3176, 82.9739],
+      ['কলকাতা', 22.5726, 88.3639], ['মুম্বাই', 19.0760, 72.8777], ['বেঙ্গালুরু', 12.9716, 77.5946],
+      ['চেন্নাই', 13.0827, 80.2707], ['হায়দরাবাদ', 17.3850, 78.4867], ['অমৃতসর', 31.6340, 74.8723],
+      ['আহমেদাবাদ', 23.0225, 72.5714], ['পাটনা', 25.5941, 85.1376], ['গুয়াহাটি', 26.1445, 91.7362]
     ];
+  const jyCityList = () => (regionKey() === 'IN' ? JY_CITY.slice(10).concat(JY_CITY.slice(0, 10)) : JY_CITY);
   const LAGNA_GOOD = [0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1];
   const jyState = () => {
-      if (!U.jyoti) U.jyoti = { date: '1995-06-15', time: '06:30', city: 0, day: TODAY_KEY, bday: TODAY_KEY };
+      if (!U.jyoti) U.jyoti = { date: '1995-06-15', time: '06:30', city: regionKey() === 'IN' ? 10 : 0, day: TODAY_KEY, bday: TODAY_KEY };
       if (!U.jyoti.day) U.jyoti.day = TODAY_KEY;
       if (!U.jyoti.bday) U.jyoti.bday = TODAY_KEY;
       return U.jyoti;
@@ -365,7 +418,7 @@
       const rise = st2.rise / 60, set = st2.set / 60;
       const pk = panjikaFor(k);
       let wins = [];
-      if (JY) wins = JY.lagnaWindows(k, GEO.lat, GEO.lon, Math.max(0, rise - 0.02), set);
+      if (JY) wins = JY.lagnaWindows(k, geoFor().lat, geoFor().lon, Math.max(0, rise - 0.02), set);
       const lagnaRows = wins.map(w => {
         const good = LAGNA_GOOD[w.idx];
         return `<div class="kv" style="padding:9px 0;border-bottom:1px dashed rgba(215,169,79,.16)">
@@ -386,7 +439,7 @@
         const ti = tithiIndex(kk, r0), tno = ti < 15 ? ti + 1 : ti - 14;
         if (TITHI.indexOf(tno) < 0) continue;
         if (NAKV.indexOf(nakIndex(kk, r0)) < 0) continue;
-        if (/একাদশী|অমাবস্যা|পূর্ণিমা|সংক্রান্তি/.test(P.festivals[kk] || '')) continue;
+        if (/একাদশী|অমাবস্যা|পূর্ণিমা|সংক্রান্তি/.test(festivalsAll()[kk] || '')) continue;
         days.push(kk);
       }
       const dayRows = days.map(kk => {
@@ -394,7 +447,7 @@
         let best = '';
         if (JY) {
           const s2 = sunTimes(kk);
-          const w2 = JY.lagnaWindows(kk, GEO.lat, GEO.lon, Math.max(0, s2.rise / 60 - 0.02), s2.set / 60)
+          const w2 = JY.lagnaWindows(kk, geoFor().lat, geoFor().lon, Math.max(0, s2.rise / 60 - 0.02), s2.set / 60)
             .filter(w => LAGNA_GOOD[w.idx]);
           const w3 = w2.filter(w => (w.end - w.start) >= 0.6);
           const pick = w3[0] || w2[0];
@@ -485,7 +538,7 @@
       const city = JY_CITY[st.city] || JY_CITY[0];
       const [dy, dm, dd2] = st.date.split('-').map(Number);
       const [th, tm] = st.time.split(':').map(Number);
-      const jd = JY ? JY.jdLocal(dy, dm, dd2, th + tm / 60, GEO.tz) : 0;
+      const jd = JY ? JY.jdLocal(dy, dm, dd2, th + tm / 60, geoFor().tz) : 0;
       const bD = bengaliDate(new Date(dy, dm - 1, dd2));
       let asc = null, pos = [];
       if (JY) {
@@ -539,7 +592,7 @@
           <span class="ttl" style="font-size:.92rem;min-width:86px">${p.name}${p.retro ? ' <span class="mini muted">(বক্রী)</span>' : ''}</span>
           <span class="mini">${p.rashi} ${JY.dms(p.deg)}</span>
           <span class="mini muted" style="min-width:96px;text-align:right">${p.nak} ${bn(p.pada)}<br><span style="opacity:.7">D9 ${JY.navamsaOf(p.lon).name}</span></span></div>`).join('') : '';
-      const cityOpts = JY_CITY.map((c, i) => `<option value="${i}" ${i === st.city ? 'selected' : ''}>${c[0]}</option>`).join('');
+      const cityOpts = jyCityList().map(c => JY_CITY.indexOf(c)).map(i => `<option value="${i}" ${i === st.city ? 'selected' : ''}>${JY_CITY[i][0]}</option>`).join('');
       const body = `<p class="mini muted" style="margin:0 0 10px;line-height:1.7">জন্ম তারিখ, সময় ও স্থান দিয়ে <b>চন্দ্ররাশি, জন্মলগ্ন, জন্মনক্ষত্র ও নবগ্রহের অবস্থান</b> — লহিড়ী অয়নাংশে (নিরয়ণ) প্রকৃত গণিত দিয়ে। জন্মসময় যত নিখুঁত, লগ্ন তত নিখুঁত।</p>
         <div class="card pad stack">
           <label class="mini muted" for="jyDate">জন্মতারিখ</label>
@@ -574,7 +627,7 @@
           const rows = Object.keys(P.purnima).sort().filter(k => U.panjika.all || k >= TODAY_KEY);
           return pjShell('পূর্ণিমা', 'Purnima · পূর্ণিমার তিথি',
             `<p class="mini muted" style="margin:0 0 12px;line-height:1.7">সারা বছরের পূর্ণিমা তিথি — স্নান, দান ও ব্রতের দিন।</p>
-             ${rows.map(k => pjRow(k, P.purnima[k])).join('')}
+             ${rows.map(k => pjRow(k, P.purnima[k], 'ভারতে এক দিন আগে-পরে হতে পারে')).join('')}
              <div class="kv" style="margin-top:10px"><span class="mini muted">মোট ${bn(Object.keys(P.purnima).length)}টি</span>
                <button class="act" data-act="pjall">${U.panjika.all ? 'শুধু আসন্ন' : 'সব দেখুন'}</button></div>`, 'purnima');
         }
@@ -582,7 +635,7 @@
           const rows = Object.keys(P.amavasya).sort().filter(k => U.panjika.all || k >= TODAY_KEY);
           return pjShell('অমাবস্যা', 'Amavasya · পিতৃতর্পণ',
             `<p class="mini muted" style="margin:0 0 12px;line-height:1.7">সারা বছরের অমাবস্যা — পিতৃতর্পণ, দীপদান ও তর্পণের দিন।</p>
-             ${rows.map(k => pjRow(k, P.amavasya[k])).join('')}
+             ${rows.map(k => pjRow(k, P.amavasya[k], 'ভারতে এক দিন আগে-পরে হতে পারে')).join('')}
              <div class="kv" style="margin-top:10px"><span class="mini muted">মোট ${bn(Object.keys(P.amavasya).length)}টি</span>
                <button class="act" data-act="pjall">${U.panjika.all ? 'শুধু আসন্ন' : 'সব দেখুন'}</button></div>`, 'amavasya');
         }
