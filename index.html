@@ -11,7 +11,8 @@
 <link rel="apple-touch-icon" href="icons/icon-light-512.png"/>
 <link rel="manifest" href="manifest.webmanifest"/>
 <link rel="stylesheet" href="css/app.css?v=87"/>
-<link rel="stylesheet" href="css/reference.css?v=individualpuja13"/>
+<link rel="stylesheet" href="css/reference.css?v=region1"/>
+<link rel="stylesheet" href="css/panjika-page.css?v=panjika4"/>
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
@@ -52,6 +53,13 @@
 <script src="js/nad.js?v=87"></script>
 <script src="js/voice.js?v=1"></script>
 <script src="js/bgm.js?v=5"></script>
-<script src="js/app.js?v=split2"></script>
+<script src="js/app.js?v=panjika1"></script>
+
+<script>
+  /* GitHub Pages: /Gurukul/ বা /Gurukul/index.html-এ ঢুকলে সোজা #/home-এ যাওয়া */
+  if (/^https?:/.test(location.protocol) && !location.hash) {
+    location.replace(location.pathname + location.search + '#/home');
+  }
+</script>
 </body>
 </html>
