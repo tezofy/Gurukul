@@ -1,0 +1,54 @@
+/* পঞ্জিকা — রেফারেন্স ছবির মতো খোলা 3D তাম্রলিপি/তালপাতার স্ক্রল কার্ড */
+.pj-page{color:var(--ink)}
+.pj-page .card{
+  position:relative;isolation:isolate;overflow:visible;
+  border:0!important;border-radius:0!important;
+  background-color:transparent!important;
+  background-image:url('../icons/reference/calendar-scroll.png?v=panjika2')!important;
+  background-size:100% 100%!important;background-position:center!important;background-repeat:no-repeat!important;
+  box-shadow:none!important;transition:transform .16s ease,filter .2s ease;
+}
+html[data-theme=dark] .pj-page .card{
+  background-image:url('../icons/reference/calendar-scroll-dark.png?v=panjika2')!important;
+}
+/* স্ক্রলের কাঠের দুই মাথা ও ঢেউ-ধারের ভেতরে লেখা/কন্ট্রোল রাখার নিরাপদ গাটার */
+.pj-page .card *{box-sizing:border-box;min-width:0;max-width:100%}
+.pj-page .card.pad{padding:clamp(27px,7.8vw,34px) clamp(29px,8.5vw,38px) clamp(30px,8.5vw,38px)!important}
+.pj-page .card.rowcard{padding:clamp(22px,6.2vw,29px) clamp(29px,8.5vw,38px)!important;gap:12px}
+.pj-page .card .card.pad{padding:12px 14px!important}
+.pj-page .card button{max-width:100%;min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.35}
+.pj-page .card .btn{display:flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;padding:9px 14px;border:2px ridge #a7774b;border-radius:14px;background:linear-gradient(#a9754b,#704128);color:#fff1cf;box-shadow:0 3px 0 #60351d,0 4px 8px #66391d44,inset 0 1px 0 #ffe9bd;font-family:inherit;font-weight:800;line-height:1.3;text-align:center;white-space:normal;overflow-wrap:anywhere}
+.pj-page .card .btn.block{width:100%}
+.pj-page .card .btn.sm{min-height:38px;padding:7px 10px}
+html[data-theme=dark] .pj-page .card .btn{border-color:#d1a16e;background:linear-gradient(#976744,#603a26);color:#fff0d0;box-shadow:0 3px 0 #2b100c,0 4px 8px #10020488,inset 0 1px 0 #f5d19b55}
+.pj-page .pj-top-card{margin:8px 0 15px!important;min-height:242px}
+.pj-page .pj-top-card .pj-festival{margin-top:8px;color:var(--gold-300);line-height:1.6}
+/* মূল স্ক্রলের ভেতরের ছোট পরিসংখ্যান-টাইলগুলো আলাদা, পরিষ্কার কার্ডই থাকবে */
+.pj-page .stat{
+  border:1px solid rgba(159,104,54,.3);border-radius:13px;
+  background:rgba(255,250,235,.53);box-shadow:inset 0 1px 0 #fff9e766,0 2px 5px #63391f16;
+}
+html[data-theme=dark] .pj-page .stat{border-color:#d2a26b55;background:rgba(38,13,10,.35);box-shadow:inset 0 1px 0 #f5d19b22,0 2px 5px #10020444}
+html[data-theme=dark] .pj-page .mini.muted,html[data-theme=dark] .pj-page .stat .k{color:#f0d2a5!important}
+html[data-theme=dark] .pj-page .stat .v{color:#fff0d0}
+/* nested card = স্ক্রলের ভেতরের তথ্যপট্টি, পূর্ণ আরেকটি স্ক্রল নয় */
+.pj-page .card .card{
+  border:1px solid rgba(159,104,54,.34)!important;border-radius:13px!important;
+  background:linear-gradient(145deg,rgba(255,250,235,.8),rgba(224,190,137,.58))!important;
+  box-shadow:inset 0 1px 0 #fff9e766,0 2px 5px #63391f1c!important;
+}
+html[data-theme=dark] .pj-page .card .card{
+  border-color:#d2a26b66!important;background:linear-gradient(145deg,rgba(111,64,39,.74),rgba(43,15,12,.76))!important;
+  box-shadow:inset 0 1px 0 #f5d19b22,0 2px 5px #10020455!important;
+}
+.pj-page .pj-card-action{
+  border:2px ridge #b58a56;border-radius:14px;font-weight:800;
+  background:linear-gradient(#fff0ce,#d5ad72);color:#4d2515;
+  box-shadow:0 3px 0 #b58a56,0 5px 8px #63391f2b,inset 0 1px 0 #fff8e5;
+}
+html[data-theme=dark] .pj-page .pj-card-action{
+  border-color:#a4774c;background:linear-gradient(#855838,#4a2619);color:#ffe3b0;
+  box-shadow:0 3px 0 #29100d,0 5px 8px #10020477,inset 0 1px 0 #d2a26b44;
+}
+@media(hover:hover){.pj-page .rowcard:hover,.pj-page .card.rowcard:hover{transform:translateY(-2px);filter:drop-shadow(0 5px 4px #63391f55)}}
+@media(max-width:360px){.pj-page .card.pad,.pj-page .card.rowcard{padding-left:8.5%!important;padding-right:8.5%!important}.pj-page .pj-top-card{min-height:232px}}
