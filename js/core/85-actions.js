@@ -144,13 +144,14 @@
       reelThumb: el => {
         const id = el.dataset.id;
         const a = document.createElement('a');
-        a.href = 'https://i.ytimg.com/vi/' + id + '/oar2.jpg';
+        const tries = ['oar2', 'sddefault', 'maxresdefault', 'hqdefault', 'mqdefault'];
+        a.href = 'https://i.ytimg.com/vi/' + id + '/sddefault.jpg';
         a.download = 'reel-' + id + '.jpg';
         a.target = '_blank'; a.rel = 'noopener';
-        fetch(a.href, { mode: 'cors' }).then(res => {
-          if (!res.ok) throw new Error('x');
-          return res.blob();
-        }).then(blob => {
+        const tryFetch = (n) => fetch('https://i.ytimg.com/vi/' + id + '/' + tries[n] + '.jpg', { mode: 'cors' })
+          .then(res => { if (!res.ok) throw new Error('x'); return res.blob(); })
+          .catch(() => (n + 1 < tries.length ? tryFetch(n + 1) : Promise.reject(new Error('no thumb'))));
+        tryFetch(0).then(blob => {
           const url = URL.createObjectURL(blob);
           a.href = url; a.target = '';
           document.body.appendChild(a); a.click(); a.remove();
@@ -336,6 +337,7 @@
         setTimeout(() => { b.classList.remove('popping'); openSetPop(); }, 200);
       },
       setPopupClose: () => closeSetPop(),
+      appInstall: () => runPwaInstall(),
       /* সার্চ পপআপ */
       searchDateGo: el => {
         const info = parseSearchDate(el.dataset.k);
@@ -445,6 +447,21 @@
       pjmonth: el => { U.panjika.by = +el.dataset.y; U.panjika.bm = +el.dataset.m; U.panjika.view = 'bn'; location.hash = '#/panjika'; render(); },
       scriptSet: el => { S.script = el.dataset.v; save('script'); render(); },
       pview: el => { U.panjika.view = el.dataset.v; render(); },
+      /* ---- দেশ বদল: বাংলাদেশ ↔ ভারত (সব পঞ্জিকা পাতা ও সময় বদলে যাবে) ---- */
+      regionSet: el => {
+        const v = el.dataset.v === 'IN' ? 'IN' : 'BD';
+        S.region = v; save('region');
+        try { clearRegionCache(); } catch (e) {}
+        if (typeof U !== 'undefined' && U.panjika) U.panjika.all = false;
+        toast(v === 'IN' ? 'ভারতের পঞ্জিকা চালু — সময় ও তিথি ভারতের ঘড়িতে' : 'বাংলাদেশের পঞ্জিকা চালু — সময় ও তিথি ঢাকার ঘড়িতে');
+        render();
+        try { chime('tick'); } catch (e) {}
+      },
+      regionOther: () => {
+        const v = regionKey() === 'IN' ? 'BD' : 'IN';
+        S.region = v; save('region'); try { clearRegionCache(); } catch (e) {} render();
+        toast(v === 'IN' ? 'ভারতের পঞ্জিকা দেখানো হচ্ছে' : 'বাংলাদেশের পঞ্জিকা দেখানো হচ্ছে');
+      },
       pbm: el => {
         let y = U.panjika.by, m = U.panjika.bm + (+el.dataset.d);
         if (m < 0) { m = 11; y--; } if (m > 11) { m = 0; y++; }
