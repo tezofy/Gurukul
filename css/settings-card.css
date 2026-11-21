@@ -17,7 +17,9 @@
   scrollbar-color:rgba(142,91,44,.4) transparent;padding:0 0 5px;box-sizing:border-box;
 }
 .setpop-scroll-inner>*{position:relative;z-index:2;max-width:100%;box-sizing:border-box}
-.setpop-scroll-card .setpop-head{margin:0 0 6px;align-items:center}
+.setpop-scroll-card .setpop-head{position:relative;justify-content:center;margin:0 0 6px;min-height:40px;align-items:center;text-align:center}
+.setpop-scroll-card .setpop-head>div{text-align:center}
+.setpop-scroll-card .setpop-head>.iconbtn{position:absolute;right:0;top:50%;transform:translateY(-50%)}
 .setpop-scroll-card .setpop-head .mini.muted{color:#986a48}
 .setpop-scroll-card .setpop-head .display{color:#4b2114}
 .setpop-scroll-card .setpop-theme{margin:0 0 4px;padding:3px;gap:4px;background:rgba(164,95,37,.08);border-radius:14px;box-shadow:inset 0 2px 5px rgba(99,54,21,.12),0 2px 0 rgba(255,255,255,.55)}
