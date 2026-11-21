@@ -1,0 +1,84 @@
+/* AI-generated contained settings-card art; all controls remain live HTML. */
+.setpop-card.setpop-scroll-card{
+  isolation:isolate;position:absolute;box-sizing:border-box;
+  right:8px;left:auto;width:min(370px,calc(100vw - 16px));
+  height:min(545px,calc(100vh - 130px));max-height:calc(100vh - 130px);
+  overflow:hidden!important;overscroll-behavior:contain;padding:0;border:0;border-radius:22px;
+  color:#4b2618;background:transparent!important;box-shadow:none!important;
+  filter:drop-shadow(0 16px 22px rgba(48,22,9,.38));
+  transform-origin:top right;animation:settingsPanelIn .46s cubic-bezier(.2,.85,.25,1) both;
+}
+.setpop-card.setpop-scroll-card::before,.setpop-card.setpop-scroll-card::after{display:none!important}
+.setpop-art{position:absolute;inset:0;z-index:0;display:block;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none}
+.setpop-art-dark{display:none}
+.setpop-scroll-inner{
+  position:absolute;z-index:2;top:11%;left:14%;right:14%;bottom:20%;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;
+  scrollbar-color:rgba(142,91,44,.4) transparent;padding:0 0 5px;box-sizing:border-box;
+}
+.setpop-scroll-inner>*{position:relative;z-index:2;max-width:100%;box-sizing:border-box}
+.setpop-scroll-card .setpop-head{margin:0 0 6px;align-items:center}
+.setpop-scroll-card .setpop-head .mini.muted{color:#986a48}
+.setpop-scroll-card .setpop-head .display{color:#4b2114}
+.setpop-scroll-card .setpop-theme{margin:0 0 4px;padding:3px;gap:4px;background:rgba(164,95,37,.08);border-radius:14px;box-shadow:inset 0 2px 5px rgba(99,54,21,.12),0 2px 0 rgba(255,255,255,.55)}
+.setpop-scroll-card .segt{min-height:36px;padding:7px 6px;border-radius:10px;transition:transform .2s ease,box-shadow .24s ease,background .24s ease}
+.setpop-scroll-card .segt.on{box-shadow:0 3px 0 #b98a42,0 5px 10px rgba(79,43,12,.2),inset 0 1px 0 rgba(255,255,255,.78)}
+.setpop-theme-label{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.setpop-theme-label .ico{flex:none;width:15px;height:15px}
+.setpop-install-btn,.setpop-install-done{
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:65px;min-height:30px;
+  padding:4px 7px;border:2px ridge #c39851;border-radius:10px;
+  background:linear-gradient(#ffe9ad,#d4a84b 58%,#b37c29);color:#48240f;
+  font-family:inherit;font-size:10px;font-weight:800;line-height:1.2;
+  box-shadow:0 3px 0 #9d6b28,0 4px 7px rgba(67,38,10,.2),inset 0 1px 0 rgba(255,255,255,.8);
+  transition:transform .16s ease,box-shadow .2s ease,filter .2s ease;
+}
+.setpop-install-btn{cursor:pointer}
+.setpop-install-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.setpop-install-done{min-width:28px;padding:4px;border-radius:50%;color:#fff8e5}
+.setpop-install-help{margin:0 2px 6px;padding:7px 9px;border:1px solid rgba(139,87,39,.26);border-radius:10px;background:rgba(255,248,226,.88);color:#57351f;font-size:10px;line-height:1.5;box-shadow:0 2px 4px rgba(83,45,16,.1),inset 0 1px 0 rgba(255,255,255,.75)}
+@media(hover:hover){.setpop-install-btn:hover{transform:translateY(-1px);filter:brightness(1.04);box-shadow:0 4px 0 #9d6b28,0 6px 10px rgba(67,38,10,.24),inset 0 1px 0 rgba(255,255,255,.85)}}
+.setpop-install-btn:active{transform:translateY(1px);box-shadow:0 1px 0 #9d6b28,inset 0 1px 0 rgba(255,255,255,.65)}
+.setpop-bottom-install{position:absolute;z-index:4;left:50%;bottom:10.5%;transform:translateX(-50%);display:grid;place-items:center}
+.setpop-bottom-install .setpop-install-btn{min-width:94px;min-height:34px;padding:6px 13px;border-radius:11px;font-size:11px;box-shadow:0 4px 0 #95621f,0 6px 11px rgba(53,31,8,.26),inset 0 1px 0 rgba(255,255,255,.86)}
+.setpop-bottom-install .setpop-install-done{min-width:36px;min-height:36px;font-size:16px}
+.setpop-scroll-card .setting{
+  gap:8px;margin:2px 1px;padding:3px 8px;min-height:32px;
+  border:1px solid rgba(126,75,34,.24);border-radius:11px;
+  background:linear-gradient(145deg,rgba(255,255,255,.42),rgba(220,191,148,.16));
+  box-shadow:0 2px 0 rgba(141,95,44,.16),inset 0 1px 0 rgba(255,255,255,.7);
+  transition:transform .18s ease,box-shadow .22s ease,background .22s ease;
+}
+.setpop-scroll-card .toggle{box-shadow:inset 0 2px 3px rgba(78,40,15,.14),0 1px 0 rgba(255,255,255,.64);transition:background-color .22s ease,box-shadow .22s ease,border-color .22s ease}
+.setpop-scroll-card .toggle::after{box-shadow:0 2px 3px rgba(70,35,12,.3),inset 0 1px 0 rgba(255,255,255,.64);transition:transform .24s cubic-bezier(.2,.8,.2,1),background .22s ease}
+@media(hover:hover){.setpop-scroll-card .setting:hover{transform:translateY(-1px);box-shadow:0 4px 7px rgba(82,45,17,.17),inset 0 1px 0 rgba(255,255,255,.76)}}
+.setpop-scroll-card .setting:active,.setpop-scroll-card .segt:active{transform:translateY(1px)}
+.setpop-scroll-card .setting>div{min-width:0;overflow-wrap:anywhere}
+.setpop-scroll-card .card{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
+html[data-theme="dark"] .setpop-art-light{display:none}
+html[data-theme="dark"] .setpop-art-dark{display:block}
+html[data-theme="dark"] .setpop-card.setpop-scroll-card{color:#f5dfba;filter:drop-shadow(0 14px 20px rgba(0,0,0,.65))}
+html[data-theme="dark"] .setpop-scroll-card .setpop-head .mini.muted{color:#d4b287}
+html[data-theme="dark"] .setpop-scroll-card .setpop-head .display{color:#ffe7bd}
+html[data-theme="dark"] .setpop-scroll-card .setpop-theme{background:rgba(215,169,79,.11);box-shadow:inset 0 2px 5px rgba(0,0,0,.28),0 2px 0 rgba(255,224,168,.08)}
+html[data-theme="dark"] .setpop-install-btn,html[data-theme="dark"] .setpop-install-done{border-color:#d4aa68;background:linear-gradient(#b58a4d,#875a29 58%,#633d1d);color:#fff1cc;box-shadow:0 3px 0 #38200f,0 4px 7px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,245,213,.42)}
+html[data-theme="dark"] .setpop-bottom-install .setpop-install-btn{box-shadow:0 4px 0 #38200f,0 6px 11px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,245,213,.48)}
+html[data-theme="dark"] .setpop-install-help{border-color:#c394594f;background:rgba(44,22,15,.94);color:#f2dcb6;box-shadow:0 2px 5px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,232,184,.12)}
+html[data-theme="dark"] .setpop-scroll-card .segt.on{box-shadow:0 3px 0 #8d642b,0 5px 10px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.74)}
+html[data-theme="dark"] .setpop-scroll-card .setting{
+  border-color:rgba(235,195,134,.25);background:linear-gradient(145deg,rgba(255,232,189,.09),rgba(30,12,8,.12));
+  box-shadow:0 2px 0 rgba(0,0,0,.24),inset 0 1px 0 rgba(255,234,193,.12);
+}
+html[data-theme="dark"] .setpop-scroll-card .toggle{box-shadow:inset 0 2px 3px rgba(0,0,0,.32),0 1px 0 rgba(255,224,168,.12)}
+html[data-theme="dark"] .setpop-scroll-card .toggle::after{box-shadow:0 2px 3px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.42)}
+@media(hover:hover){html[data-theme="dark"] .setpop-scroll-card .setting:hover{box-shadow:0 4px 8px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,234,193,.16)}}
+html[data-theme="dark"] .setpop-scroll-inner{scrollbar-color:rgba(224,180,109,.4) transparent}
+@keyframes settingsPanelIn{
+  0%{opacity:0;transform:translateY(-12px) scale(.95);filter:drop-shadow(0 2px 3px rgba(48,22,9,.05))}
+  72%{opacity:1;transform:translateY(1px) scale(1.006)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@media(prefers-reduced-motion:reduce){.setpop-card.setpop-scroll-card{animation:none}.setpop-scroll-card .setting,.setpop-scroll-card .segt,.setpop-scroll-card .toggle,.setpop-scroll-card .toggle::after,.setpop-install-btn{transition:none}}
+@media(max-width:350px){
+  .setpop-scroll-inner{left:14%;right:14%;bottom:20%}
+}
