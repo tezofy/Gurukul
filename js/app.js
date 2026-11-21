@@ -3339,9 +3339,41 @@
       host.classList.remove('on'); host.innerHTML = ''; document.body.classList.remove('setpop-lock');
       const card = document.querySelector('.ref-sadhana'); if (card) card.focus();
     }
+  let pwaInstallPrompt = null, pwaInstallDone = false, pwaInstallHelpOpen = false;
+  const pwaIsInstalled = () => pwaInstallDone || !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const pwaInstallHelp = () => {
+      const ua = navigator.userAgent || '';
+      if (/iphone|ipad|ipod/i.test(ua)) return 'Safari-তে Share বাটন চাপুন → Add to Home Screen → Add নির্বাচন করুন।';
+      if (/android/i.test(ua)) return 'ব্রাউজারের ⋮ মেনু খুলে Install app বা Add to Home screen চাপুন, তারপর Install নিশ্চিত করুন।';
+      return 'ব্রাউজারের Install আইকন বা মেনু খুলে Install app / Install this site as an app নির্বাচন করুন।';
+    };
+  function pwaInstallButtonHTML() {
+      if (pwaIsInstalled()) return '<span class="setpop-install-done" title="অ্যাপ ইনস্টল করা আছে">✓</span>';
+      return `<button class="setpop-install-btn" data-act="appInstall" aria-label="অ্যাপ ইনস্টল করুন" title="হোম স্ক্রিনে অ্যাপ ইনস্টল করুন"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m-4-4 4 4 4-4"/><path d="M5 14.5v5h14v-5"/></svg><span>ইনস্টল</span></button>`;
+    }
+  function pwaInstallHelpHTML() {
+      return !pwaIsInstalled() && pwaInstallHelpOpen ? `<div class="setpop-install-help" role="status">${pwaInstallHelp()}</div>` : '';
+    }
+  async function runPwaInstall() {
+      if (pwaIsInstalled()) { toast('অ্যাপটি এই ডিভাইসে ইনস্টল করা আছে'); return; }
+      if (!pwaInstallPrompt) { pwaInstallHelpOpen = !pwaInstallHelpOpen; refreshSetPop(); return; }
+      const ev = pwaInstallPrompt; pwaInstallPrompt = null;
+      try {
+        await ev.prompt();
+        const choice = await ev.userChoice;
+        if (choice && choice.outcome === 'accepted') toast('ইনস্টল অনুমোদিত হয়েছে');
+        else toast('ইনস্টল বাতিল করা হয়েছে');
+      } catch (err) { toast('ইনস্টল মেনু খোলা যায়নি — ব্রাউজার মেনু ব্যবহার করুন'); }
+      refreshSetPop();
+    }
+  window.addEventListener('beforeinstallprompt', ev => { ev.preventDefault(); pwaInstallPrompt = ev; refreshSetPop(); });
+  window.addEventListener('appinstalled', () => { pwaInstallDone = true; pwaInstallPrompt = null; pwaInstallHelpOpen = false; refreshSetPop(); toast('সনাতন বিদ্যাপীঠ ইনস্টল হয়েছে'); });
   function setPopHTML() {
       return `<div class="setpop-bg" data-act="setPopupClose" aria-hidden="true"></div>
-        <div class="setpop-card" role="dialog" aria-modal="true" aria-label="সেটিংস">
+        <div class="setpop-card setpop-scroll-card" role="dialog" aria-modal="true" aria-label="সেটিংস">
+          <img class="setpop-art setpop-art-light" src="icons/reference/settings-panel-light.png?v=1" alt="" aria-hidden="true"/>
+          <img class="setpop-art setpop-art-dark" src="icons/reference/settings-panel-dark.png?v=1" alt="" aria-hidden="true"/>
+          <div class="setpop-scroll-inner">
           <div class="setpop-head">
             <div>
               <div class="mini muted" style="letter-spacing:.14em;text-transform:uppercase;font-weight:700;font-size:9px">Preferences</div>
@@ -3350,11 +3382,13 @@
             <button class="iconbtn" data-act="setPopupClose" aria-label="বন্ধ করুন">${vico('close')}</button>
           </div>
           <div class="setpop-theme">
-            <button class="segt ${S.theme === 'light' ? 'on' : ''}" data-act="themeSet" data-v="light">☀ লাইট</button>
-            <button class="segt ${S.theme === 'dark' ? 'on' : ''}" data-act="themeSet" data-v="dark">🌙 ডার্ক</button>
+            <button class="segt ${S.theme === 'light' ? 'on' : ''}" data-act="themeSet" data-v="light"><span class="setpop-theme-label">${ico('sun', 'xs')}<span>লাইট</span></span></button>
+            <button class="segt ${S.theme === 'dark' ? 'on' : ''}" data-act="themeSet" data-v="dark"><span class="setpop-theme-label">${ico('moon', 'xs')}<span>ডার্ক</span></span></button>
           </div>
+          ${pwaInstallHelpHTML()}
           ${prefCard()}
-          <div class="mini muted" style="text-align:center;margin-top:10px;line-height:1.6">ডেটা শুধু এই ব্রাউজারে সংরক্ষিত</div>
+          </div>
+          <div class="setpop-bottom-install">${pwaInstallButtonHTML()}</div>
         </div>`;
     }
   function openSetPop() {
@@ -5490,6 +5524,7 @@ function mediaViewBoot() {
         setTimeout(() => { b.classList.remove('popping'); openSetPop(); }, 200);
       },
       setPopupClose: () => closeSetPop(),
+      appInstall: () => runPwaInstall(),
       /* সার্চ পপআপ */
       searchDateGo: el => {
         const info = parseSearchDate(el.dataset.k);
