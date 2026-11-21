@@ -13,14 +13,15 @@
       return list.map(b => {
         const lv = S.lastVerse.book === b.id ? S.lastVerse.idx : 0;
         const pct = Math.round((lv + 1) / b.texts.length * 100);
-        return `<div class="card book" data-act="nav" data-to="${b.chapterMeta ? '#/gita' : '#/book/' + b.id}" role="button" tabindex="0">
-          <div class="cover ${b.cls}"><span class="sym">${b.sym}</span></div>
-          <div style="flex:1;min-width:0">
-            <div class="kv"><span class="ttl">${esc(b.title)}</span><span class="pill ${b.tag === 'নতুন' ? 'ok' : 'flat'}">${b.tag}</span></div>
-            <div class="mini muted" style="margin:4px 0 8px">${bn(b.chapters)} অধ্যায় · ${bn(b.verses)} শ্লোক${b.audio ? ' · অডিও' : ''}</div>
-            <div class="bar thin"><i style="width:${pct}%"></i></div>
-            <div class="kv" style="margin-top:7px"><span class="mini muted">${bn(pct)}% পড়া হয়েছে</span><span class="mini muted">${b.texts.length} শ্লোক এই ডেমোতে</span></div>
-          </div></div>`;
+        return `<div class="card book lib-book" data-act="nav" data-to="${b.chapterMeta ? '#/gita' : '#/book/' + b.id}" role="button" tabindex="0" aria-label="${esc(b.title)} পড়ুন">
+          <div class="cover ${b.cls} lib-cover"><span class="sym">${b.sym}</span><i aria-hidden="true">✦</i></div>
+          <div class="lib-book-body">
+            <div class="kv lib-book-title"><span class="ttl">${esc(b.title)}</span><span class="pill ${b.tag === 'নতুন' ? 'ok' : 'flat'}">${b.tag}</span></div>
+            <div class="mini muted lib-author">${esc(b.author || 'শাস্ত্র পাঠ')}</div>
+            <div class="mini muted lib-book-facts">${bn(b.chapters)} অধ্যায় <span>·</span> ${bn(b.verses)} শ্লোক${b.audio ? ' <span>·</span> অডিও' : ''}</div>
+            <div class="bar thin lib-progress"><i style="width:${pct}%"></i></div>
+            <div class="kv lib-book-foot"><span class="mini muted">${bn(pct)}% পড়া হয়েছে</span><span class="mini muted">${bn(b.texts.length)} নমুনা শ্লোক</span></div>
+          </div><span class="lib-book-arrow" aria-hidden="true">›</span></div>`;
       }).join('');
     }
   const AP = { player: null, api: false, ready: false, pending: null, timer: null, id: null, dur: 0, rate: 1 };
@@ -298,16 +299,31 @@
         ${rows || '<p class="mini muted">এই শ্রেণিতে কিছু নেই।</p>'}
         <p class="mini muted" style="margin-top:10px;line-height:1.7">উৎস: YouTube-এর বাংলা ভক্তিমূলক চ্যানেল (oEmbed দিয়ে নাম যাচাই করা)। লিংক অ্যাপের ভেতরে সাজানো; ভিডিও/অডিও ফাইল ডাউনলোড হয় না।</p>`;
     }
+  function libraryFeatureCards() {
+      const cards = [
+        { key: 'books', title: 'শাস্ত্র পাঠ', sub: `${bn((DB.books || []).length)}টি গ্রন্থ · নিজের গতিতে`, art: 'library-art-scripture.webp', action: 'গ্রন্থ দেখুন' },
+        { key: 'audio', title: 'ভক্তির অডিও', sub: `${bn((DB.gitaAudio || []).length + bhaktiAudio().length)}টি পাঠ ও শ্রবণ`, art: 'library-art-audio.webp', action: 'শুনতে যান' },
+        { key: 'pdf', title: 'নিজের PDF', sub: 'ব্যক্তিগত বই · অফলাইন পাঠ', art: '', action: 'সংগ্রহ খুলুন' }
+      ];
+      return `<div class="lib-feature-wrap"><div class="lib-feature-heading"><span>পাঠের পথ বেছে নিন</span><i aria-hidden="true"></i></div>
+        <div class="lib-feature-grid">${cards.map(c => `<button class="card lib-feature ${U.libSeg === c.key ? 'is-current' : ''} lib-feature-${c.key}" type="button" data-act="seg" data-s="${c.key}" aria-pressed="${U.libSeg === c.key}">
+          <span class="lib-art">${c.art ? `<img src="icons/reference/${c.art}" alt="" loading="eager"/>` : `<span class="lib-pdf-art" aria-hidden="true"><i>॥</i><b>PDF</b><small>শাস্ত্র · পাঠ · সংগ্রহ</small></span>`}</span>
+          <span class="lib-feature-copy"><b>${c.title}</b><small>${c.sub}</small></span>
+          <span class="lib-cta" aria-hidden="true">${c.action}<i>↗</i></span>
+        </button>`).join('')}</div></div>`;
+    }
   function libraryScreen() {
       const cats = ['সব', 'চলমান', 'নতুন', 'মুখস্থ', 'সংক্ষিপ্ত'];
       return `${appbar('শাস্ত্র গ্রন্থাগার', 'Digital Granthagar', undefined, true)}
-      <div class="pad" style="padding-top:0">
+      <section class="library-page">
+      <div class="pad lib-controls" style="padding-top:0">
         <div class="search">${ico('search', 'sm')}<input id="libSearch" placeholder="গ্রন্থ, শ্লোক বা শব্দ খুঁজুন…" value="${esc(U.libQ)}" aria-label="খুঁজুন"/></div>
         <div class="segment mt">
           ${[['books', 'গ্রন্থ'], ['pdf', 'PDF বই'], ['verse', 'শ্লোক'], ['audio', 'অডিও']].map(([k, l]) =>
             `<button class="${U.libSeg === k ? 'on' : ''}" data-act="seg" data-s="${k}">${l}</button>`).join('')}
         </div>
       </div>
+      ${libraryFeatureCards()}
       <div class="cats">${U.libSeg === 'audio'
         ? ((U.audioSrc || 'gita') === 'bhakti'
             ? AUDIO_CATS.map(([k, l]) => `<button class="chip ${(U.audioCat || 'all') === k ? 'on' : ''}" data-act="audioCat" data-c="${k}">${l}${k === 'all' ? ' · ' + bn(bhaktiAudio().length) : ' · ' + bn(bhaktiAudio().filter(x => x.cat === k).length)}</button>`).join('')
@@ -335,5 +351,5 @@
                   <span><i style="border:1px solid #d7a94f"></i>চলমান</span><span><i style="background:rgba(255,255,255,.1)"></i>বাকি</span></div>
               </div>
               <div id="libList">${bookCards()}</div>`}
-      </div><div style="height:20px"></div>`;
+      </div><div style="height:20px"></div></section>`;
     }
