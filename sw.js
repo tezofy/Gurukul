@@ -1,7 +1,7 @@
 /* সনাতন বিদ্যাপীঠ — অফলাইন service worker
    কৌশল: cache-first + background refresh. অ্যাপের সব ফাইল প্রথম দেখাতেই ক্যাশ হয়,
    তাই নেট না থাকলেও অ্যাপ পুরোপুরি চলে। */
-const CACHE = 'sanatana-v129-settings-install-bottom';
+const CACHE = 'sanatana-v130-settings-title-center';
 
 self.addEventListener('install', () => self.skipWaiting());
 
